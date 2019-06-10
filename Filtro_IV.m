@@ -25,34 +25,28 @@ B = f4-f1; %banda de rejeiçaõ em Hz
 f = [1200 1250 1300 1400]; % frequências em Hz
 
 % substituindo de Hz para ômega
-% w = f/fa*(2*pi); %w = 2*pi*f
-% ws1 = w(1)/pi;
-% wp1 = w(2)/pi;
-% wp2 = w(3)/pi;
-% ws2 = w(4)/pi;
-
-% teste
-fN = fa/2; %frequencia de Niquist
-w = 2*pi*f; 
-wp1 = w(1)/fN;
-ws1 = w(2)/fN;
-ws2 = w(3)/fN;
-wp2 = w(4)/fN;
+w = f/fa*(2*pi); %w = 2*pi*f
+ws1 = w(1)/pi;
+wp1 = w(2)/pi;
+wp2 = w(3)/pi;
+ws2 = w(4)/pi;
 
 w0 = 2*pi*f0;
 Bw = 2*pi*B;
 
 
-%Ws2 =  abs(w0^2 - ws1^2)/(Bw*ws1); %utilidade disso ???
-%Ws1 = abs(w0^2 - ws2^2)/(Bw*ws2);  %utilidade disso ???
-% Ws = min(ws2,ws1);
-% Wp = 1;
+% Ws2 =  abs(w0^2 - ws1^2)/(Bw*ws1); %utilidade disso ???
+% Ws1 = abs(w0^2 - ws2^2)/(Bw*ws2);  %utilidade disso ???
+%  Ws = min(Ws2,Ws1);
+%  Wp = 1;
+
 Ws = min(ws2,ws1);
 Wp = 1;
 
 % Filtro Chebyshev 1
 Rp = Ap; Rs = As;
 [n,Wn] = cheb1ord(Wp,Ws,Rp,Rs,'s')
+n=n+1;
 [b,a] = cheby1(n,Rp,Wn,'s');
 
 % Plot filtro PB

@@ -23,19 +23,11 @@ B = f3-f2; %banda de passagem em Hz
 
 f = [1000 1200 1250 1300]; % frequências em Hz
 % substituindo de Hz para ômega
-% w = f/fa*(2*pi); %w = 2*pi*f
-% ws1 = w(1)/pi;
-% wp1 = w(2)/pi;
-% wp2 = w(3)/pi;
-% ws2 = w(4)/pi;
-
-% teste
-fN = fa/2; %frequencia de Niquist
-w = 2*pi*f; 
-ws1 = w(1)/fN;
-wp1 = w(2)/fN;
-wp2 = w(3)/fN;
-ws2 = w(4)/fN;
+w = f/fa*(2*pi); %w = 2*pi*f
+ws1 = w(1)/pi;
+wp1 = w(2)/pi;
+wp2 = w(3)/pi;
+ws2 = w(4)/pi;
 
 w0 = 2*pi*f0;
 Bw = 2*pi*B;
