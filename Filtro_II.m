@@ -134,13 +134,10 @@ b0 = 1 - ( wc/pi);
 b = [flip(bi) b0 bi];
 
 m = -M : M;
-%mk = 0.04; % filtro hamming
-mk = 0.00; % filtro hann
-wk = (0.5+mk)+(0.5-mk)*cos(2*pi*m/(2*M+1)); %serve para filtro hamming ou hann
-%wk = (0.42)+(0.5)*cos(2*pi*m/(2*M+1))+(0.08)*cos(4*pi*m/(2*M+1)); %filtro blackman
+%dw = 0.04; % filtro hamming
+dw = 0.00; % filtro hann
+wk = (0.5+dw)+(0.5-dw)*cos(2*pi*m/(2*M+1)); %serve para filtro hamming ou hann
 b = b.*wk*10^(-g0/20);
-%b = b.*10^(-g0/20);     %janela retangular, basta tirar a janela
-
 
 % Acertar a janela no plot
 ws = w(2);
@@ -159,14 +156,12 @@ subplot(322)
 stem([flip(bi) b0 bi]); grid on;title('Resposta ao impulso');
 
 subplot(3,2,[4 6])
-%subplot(2,2,[1 3])
 zplane(b, 1)
 axis([-2 2 -2 2]);
 
 subplot(323)
 plot(w/pi, unwrap(angle(h))/pi); grid on;title('Resposta de fase de H(z)');
 subplot(325)
-%%subplot(2,2,[2 4])
 grpdelay(b, 1);title('Atraso de grupo');
 
 figure(2)
