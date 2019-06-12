@@ -85,9 +85,9 @@ plot(w/2/pi, 20*log10(abs(h))); grid on;hold on;ylim([-80 5]);xlim([1000 1600]);
 title_txt = ['BP - Filtro IIR - CHEBYSHEV I - N = ' num2str(n)];
 title(title_txt);
 % Máscara do filtro projetado
-Amin = 5;
+Amin = 0;
 plot([0,f1,f1,f4,f4,fa/2],-[Ap,Ap,80,80,Ap,Ap], '--r');
-plot([f2,f2,f3,f3],[Amin,-As,-As,Amin], '--m');
+plot([0,f2,f2,f3,f3,fa/2],[0,Amin,-As,-As,Amin,0], '--m');
 hold off;
 
 subplot(212)
@@ -96,9 +96,9 @@ plot(w/2/pi, 20*log10(abs(h)));grid on;hold on; ylim([-65 -55]);xlim([1180 1420]
 title_txt = ['BP - Filtro IIR - CHEBYSHEV I - N = ' num2str(n)];
 title(title_txt);
 % Máscara do filtro projetado
-Amin = 5;
+Amin = 0;
 plot([0,f1,f1,f4,f4,fa/2],-[Ap,Ap,80,80,Ap,Ap], '--r');
-plot([f2,f2,f3,f3],[Amin,-As,-As,Amin], '--m');
+plot([0,f2,f2,f3,f3,fa/2],[0,Amin,-As,-As,Amin,0], '--m');
 hold off;
 
 figure(3)
