@@ -82,7 +82,6 @@ plot([0,wp,wp]/pi,[-Ap,-Ap,-85]+GdB, '-red')
 plot([0,ws/pi,ws/pi,1],[0,0,-As,-As]+GdB, '-red')
 
 
-
 subplot(323)
 plot(w/pi, unwrap(angle(h))/pi); grid on;
 subplot(325)

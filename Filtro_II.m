@@ -15,41 +15,32 @@ f1 = 1000; % Hz
 f2 = 1300; % Hz
 GdB = 0; % dB
 
-f = [1000 1300]; % frequências em Hz
-
-% substituindo de Hz para ômega
-w = f/fa*(2*pi); %w = 2*pi*f
-wp = w(2)/pi;
-ws = w(1)/pi;
-
-f0 = sqrt(f1*f2); 
-B = f2-f1; %banda de passagem em Hz
-w0 = 2*pi*f0;
-Bw = 2*pi*B;
-
-%Ws =  abs(w0^2 - ws^2)/(Bw*ws);
-%Ws = wp/ws; %Lowpass -> Highpass
-Wp = 1;
-% Ws = 1;
-% Wp = ws/wp;
-
-
+fs = f1;
+fp = f2;
+ws = 2*pi*fs;
+wp = 2*pi*fp;
+wa = fa * 2 * pi;
+tetha_s = ws/(wa/2);
+tetha_p = wp/(wa/2);
+lambda_s = 2*tan(tetha_s * pi/2);
+lambda_p = 2*tan(tetha_p * pi/2);
+Os = lambda_p/lambda_s;
+Op = 1;
 
 % Filtro Chebyshev 2
-Rp = Ap; Rs = As;
-[n,Wn] = cheb2ord(Wp,Ws,Rp,Rs,'s')
-[b,a] = cheby2(n,Rp,Wn,'s');
-[b1,a1] = cheby2(n,Rp,1,'s');
+Rp = Ap; Rs = As; 
+[n,Wn] = cheb2ord(Op,Os,Rp,Rs,'s')
+[b,a] = cheby2(n,Rs,Wn,'s');
 
-% Plot filtro PB
+% Plot protótipo filtro PB
 figure(1)
 [h1,w1] = freqs(b,a,logspace(-2,1,1000));
-semilogx(w1,20*log10(abs(h1)));grid on; ylim([-40 5]);
-hold on;
-[h1,w1] = freqs(b1,a1,logspace(-2,1,1000));
-semilogx(w1,20*log10(abs(h1)));grid on; %ylim([-60 5]);
-hold off;
-
+semilogx(w1,20*log10(abs(h1)));grid on; ylim([-60 5]);
+title('H(p)')
+hold on
+grid on
+plot([10^-2,Os,Os,10^1],[0,0,-As,-As], '--r')
+plot([10^-2,1,1],[-Ap,-Ap,-80], '--r')
 
 % Transformação de frequência Lowpass para Highpass
 ap = a; bp = b; 
@@ -61,7 +52,7 @@ pretty(vpa(collect(Hp(p)), 5))
 
 % transformação de frequência
 syms s;
-Hs(s) = collect(subs(Hp(p),wp/s));%transformação lowpass/bandstop
+Hs(s) = collect(subs(Hp(p),lambda_p/s));%transformação lowpass/bandstop
 [N, D] = numden(Hs(s));
 pretty(vpa(Hs(s), 5))
 
@@ -77,16 +68,58 @@ pretty(vpa(Hsn(s), 5))
 % Plot filtro BP
 figure(2)
 %subplot(211)
-[h, w] = freqs(bsn,asn, linspace(0, fa*pi, 10000));
-plot(w/2/pi, 20*log10(abs(h))); grid on;hold on;
-title_txt = ['BP - Filtro IIR - CHEBYSHEV I - N = ' num2str(n)];
-title(title_txt);
-plot([0 wp/pi wp/pi 1],[-As -As 0 0], '--red')
-plot([ws/pi,ws/pi,1],[-60 -Ap,-Ap], '--red')
-%%
+[h, w] = freqs(bsn,asn, linspace(0, 100, 10000));
+plot(w/pi, 20*log10(abs(h))); grid on;hold on;ylim([-80 10]);xlim([0 2])
+title('H(s)')
+% Fazer a mascara em cima do LAMBDA
+plot([0,lambda_s/pi,lambda_s/pi,2],[-As,-As,0,0], '--r')
+plot([lambda_p/pi,lambda_p/pi,2],[-80,-Ap,-Ap], '--r')
 
+syms z;
+aux = 2*((z-1)/(z+1));
+Hz(z) = collect(subs(Hs(s), aux));
+pretty(vpa(Hz(z),3))
+
+[Nz,Dz] = numden(Hz(z));
+bz = sym2poly(Nz);
+az = sym2poly(Dz);
+
+an = az(1);
+bzn = bz/an;
+azn = az/an;
+
+Hzn(z) = poly2sym(bzn,z) / poly2sym(azn,z);
+pretty(vpa(Hzn(z),5))
+
+figure(3)
+subplot(211)
+[hz, wz] = freqz(bzn,azn, linspace(0, pi, 1000));
+plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-60 5])
+title_txt = ['BP - Filtro IIR - Chebyshev II - N = ' num2str(n)];
+title(title_txt);
+% Máscara do filtro projetado
+plot([0,fs,fs,2000],[-As,-As,0,0], '--r')
+plot([fp,fp,2000],[-60,-Ap,-Ap], '--r')
+hold off;
+
+subplot(212)
+plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-5 2]);xlim([990 1310]);
+title_txt = ['BP - Filtro IIR - Chebyshev II - N = ' num2str(n)];
+title(title_txt);
+% Máscara do filtro projetado
+plot([0,fs,fs,2000],[-As,-As,0,0], '--r')
+plot([fp,fp,2000],[-80,-Ap,-Ap], '--r')
+hold off;
+
+figure(4)
+subplot(121)
+grpdelay(bzn,azn);
+subplot(122)
+zplane(bzn, azn);
+
+
+%%
 clear all;
-close all;
 clc;
 
 % Projeto Filtro FIR - Janela Fixa
@@ -122,19 +155,6 @@ M = ceil(3.11*pi/Dw); % ordem (3.11 tabela Hann)
     Dw1 = ws1 - wp1;
     M2 = ceil(M*Dw1/Dw);
     M = M2; 
-%    
-% % segundo ajuste de M (N/2)
-%     wp2 = 0.4463*pi; ws2 = 0.5975*pi;
-%     Dw2 = ws2 - wp2;
-%     M3 = ceil(M*Dw2/Dw);
-%     M = M3;
-%   
-% % Terceiro ajuste da frequência de corte
-%     Dwp = 0.4*pi - wp2;
-%     Dws = 0.6*pi - ws2;
-%     wc3 = wc + (Dwp + Dws)/2;
-%     wc = wc3;
-
 
 wc = sqrt(wp*ws);   % frequência de corte, média das frequências
 
@@ -155,6 +175,7 @@ b = b.*wk*10^(-g0/20);
 ws = w(2);
 wp = w(1);
 
+figure(5)
 subplot(321)
 [h, w] = freqz(b,1,linspace(0,pi,10000)); 
 %plot(w/pi,abs(h)); grid on; xlim([0 1])    %dominio do tempo
@@ -176,9 +197,9 @@ plot(w/pi, unwrap(angle(h))/pi); grid on;title('Resposta de fase de H(z)');
 subplot(325)
 grpdelay(b, 1);title('Atraso de grupo');
 
-figure(2)
+figure(6)
 hold on;
 plot(w/pi,20*log10(abs(h))); grid on; xlim([0 1]);title('Resposta de magnitude de H(z)');ylim([-80 5]);
 plot([0 wp/pi wp/pi 1],[-As -As 0 0], '--red')
-plot([ws/pi,ws/pi,1],[-60 -Ap,-Ap], '--red')
+plot([ws/pi,ws/pi,1],[-40 -Ap,-Ap], '--red')
 hold off;
