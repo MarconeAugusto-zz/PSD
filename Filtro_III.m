@@ -129,7 +129,7 @@ plot([0,f1,f1,f4,f4,1],-[As,As,0,0,As,As], '--r');
 plot([f2,f2,f3,f3],-[Amin,Ap,Ap,Amin], '--m'); 
 hold off;
 
-figure(3)
+figure(4)
 subplot(1,2,1)
 grpdelay(bzn,azn);
 subplot(1,2,2)
