@@ -138,7 +138,7 @@ devAp = 1-10^(-(Ap/2+0.05)/20);
 devs = [devAp devAs devAp];
 
 % calculo da ordem com firpmord
-f = f + [0 0 30 0];
+f = f + [0 0 40 0];
 [n,f0,a0,w0] = firpmord(f,mags,devs,fa);
 
 G0 = -Ap/2;
@@ -155,9 +155,9 @@ title_txt = ['BS - Filtro FIR - PM - N = ' num2str(n)];
 title(title_txt);
 hold on;
 % Máscara
-Amin = 5;
+Amin = 0;
 plot([0,f1,f1,f4,f4,fa/2],-[Ap,Ap,80,80,Ap,Ap], '--r');ylim([-80 5]);xlim([1000 1600]);
-plot([f2,f2,f3,f3],[Amin,-As,-As,Amin], '--m');grid on;
+plot([0,f2,f2,f3,f3,fa/2],[0,Amin,-As,-As,Amin,0], '--m');grid on;
 hold off;
 subplot(212)
 [Hw,w] = freqz(h_pm,1,10000);
@@ -168,7 +168,7 @@ hold on;
 % Máscara
 Amin = 5;
 plot([0,f1,f1,f4,f4,fa/2],-[Ap,Ap,80,80,Ap,Ap], '--r');
-plot([f2,f2,f3,f3],[Amin,-As,-As,Amin], '--m');grid on;
+plot([0,f2,f2,f3,f3,fa/2],[0,Amin,-As,-As,Amin,0], '--m');grid on;
 hold off;
 
 
