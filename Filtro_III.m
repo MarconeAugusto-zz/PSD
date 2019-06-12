@@ -18,33 +18,45 @@ f3 = 1250; % Hz
 f4 = 1300; % Hz
 GdB = 0; % dB
 
-f0 = sqrt(f2*f3); 
-B = f3-f2; %banda de passagem em Hz
-
-f = [1000 1200 1250 1300]; % frequências em Hz
-% substituindo de Hz para ômega
-w = f/fa*(2*pi); %w = 2*pi*f
-ws1 = w(1)/pi;
-wp1 = w(2)/pi;
-wp2 = w(3)/pi;
-ws2 = w(4)/pi;
-
-w0 = 2*pi*f0;
-Bw = 2*pi*B;
-
-%Ws2 =  abs(w0^2 - ws1^2)/(Bw*ws1); %utilidade disso ???
-%Ws1 = abs(w0^2 - ws2^2)/(Bw*ws2);  %utilidade disso ??? 
-Ws = min(ws2,ws1);
-Wp = 1;
+% Frequências
+fs1 = f1;
+fp1 = f2;
+fp2 = f3;
+fs2 = f4;
+% Frequência -> omega
+ws1 = 2*pi*fs1;
+wp1 = 2*pi*fp1;
+wp2 = 2*pi*fp2;
+ws2 = 2*pi*fs2;
+wa = fa*2*pi;
+% Cálculo do tetha
+tetha_s1 = ws1/(wa/2);
+tetha_p1 = wp1/(wa/2);
+tetha_s2 = ws2/(wa/2);
+tetha_p2 = wp2/(wa/2);
+% Cálculo do lambda
+lambda_s1 = 2*tan(tetha_s1 * pi/2);
+lambda_s2 = 2*tan(tetha_s2 * pi/2);
+lambda_p1 = 2*tan(tetha_p1 * pi/2);
+lambda_p2 = 2*tan(tetha_p2 * pi/2);
+lambda_0 = sqrt(lambda_p2*lambda_p1);
+lambda_s = min(lambda_s1,lambda_s2);
+% Lowpass -> Bandpass
+B = lambda_p2 - lambda_p1;
+Os = abs((-lambda_s^2+lambda_0^2)/(B*lambda_s));
+Op = 1;
 
 % Filtro elíptico
-[n,Wn] = ellipord(Wp,Ws,Ap,As,'s')
+[n,Wn] = ellipord(Op,Os,Ap,As,'s')
 [b,a] = ellip(n,Ap,As,Wn,'s');
 
-% Plot filtro PB
+% Plot protótipo filtro PB
 figure(1)
-[h1,w1] = freqs(b,a,logspace(-2,1,1000));
-semilogx(w1,20*log10(abs(h1)));grid on; ylim([-60 5]);
+[h1,w1] = freqs(b,a,logspace(-2,2,10000));
+semilogx(w1,20*log10(abs(h1)));grid on; ylim([-30 5]);
+title('H(p)');hold on;grid on;
+plot([10^-2,Os,Os,10^2],[0,0,-As,-As], '--r')
+plot([10^-2,1,1],[-Ap,-Ap,-80], '--r')
 
 % Transformação de frequência Lowpass para Bandpass
 ap = a; bp = b; 
@@ -56,7 +68,7 @@ pretty(vpa(collect(Hp(p)), 5))
 
 % transformação de frequência
 syms s;
-Hs(s) = collect(subs(Hp(p), (s^2 + w0^2)/(Bw*s))); %transformação lowpass/bandpass
+Hs(s) = collect(subs(Hp(p), (s^2 + lambda_0^2)/(B*s))); %transformação lowpass/bandpass
 [N, D] = numden(Hs(s));
 pretty(vpa(Hs(s), 5))
 
@@ -71,19 +83,44 @@ pretty(vpa(Hsn(s), 5))
 
 % Plot filtro BP
 figure(2)
+[h, w] = freqs(bsn,asn,linspace(0, 100, 10000));
+plot(w/pi, 20*log10(abs(h))); grid on;hold on;ylim([-60 5]);xlim([0 2]);
+title('H(s)')
+% Fazer a mascara em cima do LAMBDA
+plot([0,lambda_s1/pi,lambda_s1/pi,lambda_s2/pi,lambda_s2/pi,2],-[As,As,0,0,As,As], '--r')
+plot([lambda_p1/pi,lambda_p1/pi,lambda_p2/pi,lambda_p2/pi],-[80,Ap,Ap,80], '--r')
+hold off;
+
+syms z;
+aux = 2*((z-1)/(z+1));
+Hz(z) = collect(subs(Hs(s), aux));
+pretty(vpa(Hz(z),3))
+
+[Nz,Dz] = numden(Hz(z));
+bz = sym2poly(Nz);
+az = sym2poly(Dz);
+
+an = az(1);
+bzn = bz/an;
+azn = az/an;
+
+Hzn(z) = poly2sym(bzn,z) / poly2sym(azn,z);
+pretty(vpa(Hzn(z),5))
+
+
+figure(3)
 subplot(211)
-[h, w] = freqs(bsn,asn, linspace(0, fa*pi, 10000));
-plot(w/2/pi, 20*log10(abs(h))); grid on;hold on;ylim([-60 5]);xlim([800 1500]);
+[hz, wz] = freqz(bzn,azn, linspace(0, pi, 1000));
+plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-60 5])
 title_txt = ['BP - Filtro IIR - ELÍPTICO - N = ' num2str(n)];
 title(title_txt);
 % Máscara do filtro projetado
-Amin = 40;
-plot([0,f1,f1,f4,f4,fa/2],-[As,As,0,0,As,As], '--r'); 
-plot([f2,f2,f3,f3],-[Amin,Ap,Ap,Amin], '--m'); 
+plot([0,f1,f1,f4,f4,2000],-[As,As,0,0,As,As], '--r')
+plot([f2,f2,f3,f3],-[40,Ap,Ap,40], '--r')
 hold off;
 
 subplot(212)
-plot(w/2/pi, 20*log10(abs(h))); grid on;hold on;ylim([-5 2]);xlim([998 1302]);
+plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-5 2]);xlim([998 1302]);
 title_txt = ['BP - Filtro IIR - ELÍPTICO - N = ' num2str(n)];
 title(title_txt);
 % Máscara do filtro projetado
@@ -94,11 +131,9 @@ hold off;
 
 figure(3)
 subplot(1,2,1)
-grpdelay(b,a);
+grpdelay(bzn,azn);
 subplot(1,2,2)
-zplane(b,a);grid on;
-
-
+zplane(bzn,azn);grid on;
 
 %% Projeto BP - Filtro FIR - PM
 %close all;

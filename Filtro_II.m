@@ -65,9 +65,8 @@ asn = as/an;
 Hsn(s) = poly2sym(bsn, s)/poly2sym(asn, s);
 pretty(vpa(Hsn(s), 5))
 
-% Plot filtro BP
+% Plot filtro HP
 figure(2)
-%subplot(211)
 [h, w] = freqs(bsn,asn, linspace(0, 100, 10000));
 plot(w/pi, 20*log10(abs(h))); grid on;hold on;ylim([-80 10]);xlim([0 2])
 title('H(s)')
