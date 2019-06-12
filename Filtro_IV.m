@@ -155,19 +155,19 @@ title(title_txt);
 hold on;
 % Máscara
 Amin = 5;
-plot([0,ws1,ws1,ws2,ws2,1]*fa/2,-[0,0,80,80,0,0], '--r'); ylim([-80 5]);xlim([1000 1600]);
-plot([wp1,wp1,wp2,wp2]*fa/2,[Amin,-As,-As,Amin], '--m'); grid minor;
+plot([0,f1,f1,f4,f4,fa/2],-[Ap,Ap,80,80,Ap,Ap], '--r');ylim([-80 5]);xlim([1000 1600]);
+plot([f2,f2,f3,f3],[Amin,-As,-As,Amin], '--m');grid on;
 hold off;
 subplot(212)
 [Hw,w] = freqz(h_pm,1,10000);
-plot(w*fa/2/pi,20*log10(abs(Hw)))
+plot(w*fa/2/pi,20*log10(abs(Hw)));ylim([-65 -55]);xlim([1180 1420]);
 title_txt = ['BS - Filtro FIR - PM - N = ' num2str(n)];
 title(title_txt);
 hold on;
 % Máscara
 Amin = 5;
-plot([0,ws1,ws1,ws2,ws2,1]*fa/2,-[0,0,80,80,0,0], '--r'); ylim([-65 -55]);xlim([1180 1420]);
-plot([wp1,wp1,wp2,wp2]*fa/2,[Amin,-As,-As,Amin], '--m'); grid minor;
+plot([0,f1,f1,f4,f4,fa/2],-[Ap,Ap,80,80,Ap,Ap], '--r');
+plot([f2,f2,f3,f3],[Amin,-As,-As,Amin], '--m');grid on;
 hold off;
 
 

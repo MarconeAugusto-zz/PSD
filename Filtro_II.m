@@ -22,10 +22,18 @@ w = f/fa*(2*pi); %w = 2*pi*f
 wp = w(2)/pi;
 ws = w(1)/pi;
 
-Ws = wp/ws; %Lowpass -> Highpass
+f0 = sqrt(f1*f2); 
+B = f2-f1; %banda de passagem em Hz
+w0 = 2*pi*f0;
+Bw = 2*pi*B;
+
+%Ws =  abs(w0^2 - ws^2)/(Bw*ws);
+%Ws = wp/ws; %Lowpass -> Highpass
 Wp = 1;
 % Ws = 1;
 % Wp = ws/wp;
+
+
 
 % Filtro Chebyshev 2
 Rp = Ap; Rs = As;
