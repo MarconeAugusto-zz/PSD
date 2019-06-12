@@ -133,17 +133,18 @@ mags = [1 0 1];
 
 % [n,fo,ao,w] = firpmord(f,a,dev,fs)
 devAs = 10^(-(As-3.5)/20);
-devAp = 1-10^(-(Ap/2-0.05)/20);
+%devAp = 1-10^(-(Ap/2-0.05)/20);
+devAp = 1-10^(-(Ap/2+0.05)/20);
 devs = [devAp devAs devAp];
 
 % calculo da ordem com firpmord
 f = f + [0 0 30 0];
 [n,f0,a0,w0] = firpmord(f,mags,devs,fa);
 
-%G0 = -Ap/2;
+G0 = -Ap/2;
 % calculo algoritmo PM
 h_pm = firpm(n,f0,a0,w0);
-%h_pm = h_pm*10^(G0/20);
+h_pm = h_pm*10^(G0/20);
 
 %clear Hw W
 figure(4)
