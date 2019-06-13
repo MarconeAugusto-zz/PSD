@@ -2,7 +2,7 @@
 % %   HP - (fa = 4000 Hz, f1 = 1000 Hz; f2 = 1300 Hz, Ap = 0.5 dB, As = 40 dB, GdB = 0 dB)
 % %   IIR - Chebyshev II, FIR - Janela Fixa
 % 
-% % Projeto Filtro IIR - Chebyshev II
+%% Projeto Filtro IIR - Chebyshev II
 
 clear all;
 close all;
@@ -94,7 +94,7 @@ figure(3)
 subplot(211)
 [hz, wz] = freqz(bzn,azn, linspace(0, pi, 1000));
 plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-60 5])
-title_txt = ['BP - Filtro IIR - Chebyshev II - N = ' num2str(n)];
+title_txt = ['H(z) - BP - Filtro IIR - Chebyshev II - N = ' num2str(n)];
 title(title_txt);
 % Máscara do filtro projetado
 plot([0,fs,fs,2000],[-As,-As,0,0], '--r')
@@ -103,7 +103,7 @@ hold off;
 
 subplot(212)
 plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-5 2]);xlim([990 1310]);
-title_txt = ['BP - Filtro IIR - Chebyshev II - N = ' num2str(n)];
+title_txt = ['H(z) - BP - Filtro IIR - Chebyshev II - N = ' num2str(n)];
 title(title_txt);
 % Máscara do filtro projetado
 plot([0,fs,fs,2000],[-As,-As,0,0], '--r')
