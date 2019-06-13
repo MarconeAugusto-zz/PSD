@@ -44,12 +44,62 @@ Hp(p) = Np(p) / Dp(p);
 pretty(vpa(collect(Hp), 5)); % collect simplifica ao maximo a funcao
 
 syms s
-Hs(s) = collect(subs(Hp, s/Wp));
+Hs(s) = collect(subs(Hp(p), s/lambdap));
 [Ns, Ds] = numden(Hs(s));
 pretty(vpa(Hs(s), 3))
 
-syms z
-s = 2*fa*((z-1)/(z+1));
+bs = sym2poly(Ns);
+as = sym2poly(Ds);
+
+an = as(1);
+bsn = bs/an;
+asn = as/an;
+
+Hsn(s) = poly2sym(bsn,s) / poly2sym(asn,s);
+pretty(vpa(Hsn(s),5))
+
+clear h w
+figure(2)
+[h,w] = freqs(bsn,asn,linspace(0,10,1000));
+plot(w,20*log10(abs(h)));
+ylim([-80 10])
+title('H(s)')
+grid on
+hold on
+
+% Fazer a mascara em cima do LAMBDA
+plot([0,lambdas,lambdas,10],[0,0,-As,-As], 'r')
+plot([0,lambdap,lambdap],[-Ap,-Ap,-80], 'r')
+
+syms z;
+aux = 2*((z-1)/(z+1));
+Hz(z) = collect(subs(Hs(s), aux));
+pretty(vpa(Hz(z),3))
+
+[Nz,Dz] = numden(Hz(z));
+bz = sym2poly(Nz);
+az = sym2poly(Dz);
+
+an = az(1);
+bzn = bz/an;
+azn = az/an;
+
+Hzn(z) = poly2sym(bzn,z) / poly2sym(azn,z);
+pretty(vpa(Hzn(z),5))
+
+figure(3)
+subplot(121)
+[hz, wz] = freqz(bzn, azn, linspace(0, pi, 1000));
+plot(wz/pi*fa/2, 20*log10(abs(hz)));
+ylim([-80 10])
+title('H(z)')
+grid on
+hold on
+plot([0,fs,fs,2000],[0,0,-As,-As], 'r')
+plot([0,fp,fp,],[-Ap,-Ap,-80], 'r')
+
+subplot(122)
+zplane(bzn, azn);
 
 
 %%
