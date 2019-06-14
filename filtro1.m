@@ -32,19 +32,21 @@ pk = E^(-1/n)*exp((1j*(2*k+n-1)/(2*n)*pi));
 a = real(poly(pk)); % denominador
 b = a(end);         % numerador
 
-[h, w] = freqs(b,a, logspace(-2, 3, 10000));
-semilogx(w, 20*log10(abs(h)))
-ylim([-80 10])
-grid on
-hold on
-plot([0,fs,fs,2000],[0,0,-As,-As], 'r')
-plot([0,fp,fp,],[-Ap,-Ap,-80], 'r')
-
 syms p
 Np(p) = poly2sym(b, p);
 Dp(p) = poly2sym(a, p);
 Hp(p) = Np(p) / Dp(p);
 pretty(vpa(collect(Hp), 5)); % collect simplifica ao maximo a funcao
+
+figure(1)
+[h, w] = freqs(b,a, logspace(-1, 1, 10000));
+semilogx(w, 20*log10(abs(h)))
+ylim([-80 10])
+grid on
+hold on
+plot([0.1,Ws,Ws,10],[0,0,-As,-As], '--r')
+plot([0.1,Wp,Wp,],[-Ap,-Ap,-80], '--r')
+title('H(p)')
 
 syms s
 Hs(s) = collect(subs(Hp(p), s/lambdap));
@@ -63,7 +65,7 @@ pretty(vpa(Hsn(s),5))
 
 clear h w
 figure(2)
-[h,w] = freqs(bsn,asn,linspace(0,10,1000));
+[h,w] = freqs(bsn,asn,linspace(0,8,10000));
 plot(w,20*log10(abs(h)));
 ylim([-80 10])
 title('H(s)')
@@ -71,8 +73,8 @@ grid on
 hold on
 
 % Fazer a mascara em cima do LAMBDA
-plot([0,lambdas,lambdas,10],[0,0,-As,-As], 'r')
-plot([0,lambdap,lambdap],[-Ap,-Ap,-80], 'r')
+plot([0,lambdas,lambdas,8],[0,0,-As,-As], '--r')
+plot([0,lambdap,lambdap],[-Ap,-Ap,-80], '--r')
 
 syms z;
 aux = 2*((z-1)/(z+1));
@@ -91,40 +93,65 @@ Hzn(z) = poly2sym(bzn,z) / poly2sym(azn,z);
 pretty(vpa(Hzn(z),5))
 
 figure(3)
-subplot(121)
-[hz, wz] = freqz(bzn, azn, linspace(0, pi, 1000));
+subplot(321)
+[hz, wz] = freqz(bzn, azn, linspace(0, pi, 10000));
 plot(wz/pi*fa/2, 20*log10(abs(hz)));
 ylim([-80 10])
-title('H(z)')
+title('Resposta de magnitude de H(z)')
 grid on
 hold on
-plot([0,fs,fs,2000],[0,0,-As,-As], 'r')
-plot([0,fp,fp,],[-Ap,-Ap,-80], 'r')
+plot([0.01,fs,fs,2000],[0,0,-As,-As], '--r')
+plot([0.01,fp,fp,],[-Ap,-Ap,-80], '--r')
 
-subplot(122)
+% subplot(322)
+% stem([flip(bi) b0 bi]); grid on;
+% title('Resposta ao impulso');
+
+subplot(3,2,[4 6])
 zplane(bzn, azn);
+xlabel('Parte real');
+ylabel('Parte imaginaria');
 
-%% Projeto Filtro FIR - Janela Ajust??vel
+subplot(323)
+plot(w/pi, unwrap(angle(h))/pi); grid on;
+title('Resposta de fase de H(z)');
+
+subplot(325)
+grpdelay(b, 1);title('Atraso de grupo');
+xlabel('Frequencia normalizada [x\pi rad/amostra]');
+ylabel('Atraso de grupo [amostra]');
+
+%% Projeto Filtro FIR - Janela Ajustavel
 
 Ap = 2; % Ganho na banda de passagem em dB
 As = 30; % Atenua????o no stopband em dB
 fa = 4000; % Hz
-f1 = 1000; % Hz fp
-f2 = 1300; % Hz fs
+fp = 1000; % Hz
+fs = 1300; % Hz
 GdB = 5; % dB
 
-wp = f1/(fa);
-ws = f2/(fa);
+wp = fp/(fa);
+ws = fs/(fa);
 dw = (2*pi)*(ws - wp);
 
+As = As + 0.6;
+dw = dw + 0.023;
 n = ceil((As - 8)/(2.285*dw) +1);
-betha = 0.5842*(As-21)^0.4+0.07886*(As-21);
+
+% As = alpha
+if As > 50
+    betha = 0.1102*(As-8.7);
+elseif (50 >= As) && (As >= 21)
+    betha = 0.5842*(As-21)^0.4+0.07886*(As-21);
+else
+    betha = 0;
+end
 
 Jkaiser = kaiser(n+1,betha);
 
-wc = sqrt(wp*ws); % frequ??ncia de corte, m??dia das frequ??ncias
+wc = 2*pi*sqrt(wp*ws); % frequ??ncia de corte, m??dia das frequ??ncias
 
-k = 1:n;
+k = 1:(n/2);
 
 g0 = 0;
 
@@ -132,6 +159,12 @@ b1 = sin(k*wc)./(k*pi);
 % b0 = sin(0*wc)./(0*pi); % sem L'Hospital
 b0 = wc/pi; % L'Hospital do b0 acima
 b = [flip(b1) b0 b1];
-% b = b.*Jkaiser*10^(-g0/20);
+b = b.'; % matriz b transposta
+b = b.*Jkaiser*10^(-g0/20);
 
-% COMO OS AJUSTES FUNCIONAM?
+fmax = fa/2;
+[h, w] = freqz(b,1,linspace(0,pi,10000)); 
+plot(w/pi*fa/2, 20*log10(abs(h))); grid on;
+hold on;
+plot([0,fs,fs,fmax],[0,0,-As,-As], '--red')
+plot([0,fp,fp],[-Ap,-Ap,-140], '--red')
