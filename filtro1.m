@@ -36,6 +36,9 @@ b = a(end);         % numerador
 semilogx(w, 20*log10(abs(h)))
 ylim([-80 10])
 grid on
+hold on
+plot([0,fs,fs,2000],[0,0,-As,-As], 'r')
+plot([0,fp,fp,],[-Ap,-Ap,-80], 'r')
 
 syms p
 Np(p) = poly2sym(b, p);
@@ -101,20 +104,6 @@ plot([0,fp,fp,],[-Ap,-Ap,-80], 'r')
 subplot(122)
 zplane(bzn, azn);
 
-
-%%
-
-% -------------------- Plotando --------------------
-figure(1)
-zplane(b,a);
-
-figure(2)
-[h, w] = freqs(b,a, logspace(-2, 3, 10000));
-semilogx(w, 20*log10(abs(h)))
-ylim([-80 10])
-grid on
-hold off
-
 %% Projeto Filtro FIR - Janela Ajust??vel
 
 Ap = 2; % Ganho na banda de passagem em dB
@@ -124,9 +113,9 @@ f1 = 1000; % Hz fp
 f2 = 1300; % Hz fs
 GdB = 5; % dB
 
-w1 = f1/(fa/2);
-w2 = f2/(fa/2);
-dw = w2 - w1;
+wp = f1/(fa);
+ws = f2/(fa);
+dw = (2*pi)*(ws - wp);
 
 n = ceil((As - 8)/(2.285*dw) +1);
 betha = 0.5842*(As-21)^0.4+0.07886*(As-21);
@@ -137,21 +126,12 @@ wc = sqrt(wp*ws); % frequ??ncia de corte, m??dia das frequ??ncias
 
 k = 1:n;
 
+g0 = 0;
+
 b1 = sin(k*wc)./(k*pi);
 % b0 = sin(0*wc)./(0*pi); % sem L'Hospital
 b0 = wc/pi; % L'Hospital do b0 acima
 b = [flip(b1) b0 b1];
+% b = b.*Jkaiser*10^(-g0/20);
 
 % COMO OS AJUSTES FUNCIONAM?
-
-%%
-
-fcuts = [fp fs];
-
-w = fcuts/fa*(2*pi);
-wp = w(1)/pi;
-ws = w(2)/pi;
-mags = [1 0];
-devs = [1-10^(-Ap/20) 10^(-As/20)];
-
-[n,Wn,beta,ftype] = kaiserord(fcuts,mags,devs,fa);
