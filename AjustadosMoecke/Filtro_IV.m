@@ -9,7 +9,7 @@ close all;
 clc;
 
 Ap = 0.5; % Ganho na banda de passagem em dB
-As = 60; % Atenua??o no stopband em dB
+As = 60; % Atenua��o no stopband em dB
 fa = 6000; % Hz
 f1 = 1200; % Hz
 f2 = 1250; % Hz
@@ -17,23 +17,23 @@ f3 = 1300; % Hz
 f4 = 1400; % Hz
 GdB = 0; % dB
 
-% Frequ?ncias
+% Frequ�ncias
 fs1 = f2;
 fs2 = f3;
 fp1 = f1;
 fp2 = f4;
-% Frequ?ncia -> omega
+% Frequ�ncia -> omega
 ws1 = 2*pi*fs1;
 wp1 = 2*pi*fp1;
 wp2 = 2*pi*fp2;
 ws2 = 2*pi*fs2;
 wa = fa*2*pi;
-% C?lculo do tetha
+% C�lculo do tetha
 tetha_s1 = ws1/(wa/2);
 tetha_p1 = wp1/(wa/2);
 tetha_s2 = ws2/(wa/2);
 tetha_p2 = wp2/(wa/2);
-% C?lculo do lambda
+% C�lculo do lambda
 lambda_s1 = 2*tan(tetha_s1 * pi/2);
 lambda_s2 = 2*tan(tetha_s2 * pi/2);
 lambda_p1 = 2*tan(tetha_p1 * pi/2);
@@ -50,7 +50,7 @@ Rp = Ap; Rs = As;
 [n,Wn] = cheb1ord(Op,Os,Rp,Rs,'s')
 [b,a] = cheby1(n,Rp,Wn,'s');
 
-% Plot prot?tipo filtro PB
+% Plot prot�tipo filtro PB
 figure(1)
 [h1,w1] = freqs(b,a,logspace(-2,1,1000));
 semilogx(w1,20*log10(abs(h1)));grid on; ylim([-65 5]);
@@ -58,7 +58,7 @@ title('H(p)');hold on;
 plot([10^-2,Os,Os,10^2],[0,0,-As,-As], '--r')
 plot([10^-2,1,1],[-Ap,-Ap,-80], '--r')
 
-% Transforma??o de frequ?ncia Lowpass para Bandstop
+% Transforma��o de frequ�ncia Lowpass para Bandstop
 ap = a; bp = b; 
 syms p;
 Np(p) = poly2sym(bp, p);
@@ -66,9 +66,9 @@ Dp(p) = poly2sym(ap, p);
 Hp(p) = Np(p) / Dp(p);
 pretty(vpa(collect(Hp(p)), 5))
 
-% transforma??o de frequ?ncia
+% transforma��o de frequ�ncia
 syms s;
-Hs(s) = collect(subs(Hp(p),((B*s)/(s^2 + lambda_0^2))));%transforma??o lowpass/bandstop
+Hs(s) = collect(subs(Hp(p),((B*s)/(s^2 + lambda_0^2))));%transforma��o lowpass/bandstop
 [N, D] = numden(Hs(s));
 pretty(vpa(Hs(s), 5))
 
@@ -110,21 +110,20 @@ pretty(vpa(Hzn(z),5))
 
 figure(3)
 subplot(211)
-[hz, wz] = freqz(bzn,azn, linspace(0, pi, 10000));
+[hz, wz] = freqz(bzn,azn, linspace(0, pi, 1000));
 plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-65 5]);xlim([0 2e3]);
 title_txt = ['BS - Filtro IIR - Chebyshev I - N = ' num2str(n)];
 title(title_txt);
-% M?scara do filtro projetado
+% M�scara do filtro projetado
 plot([0,f1,f1,f4,f4,2000],-[Ap,Ap,80,80,Ap,Ap], '--r')
 plot([0,f2,f2,f3,f3,2000],-[0,0,As,As,0,0], '--r')
 hold off;
 
 subplot(212)
-plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;
-ylim([-1 1]); xlim([0 2000]);
+plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-5 2]);xlim([998 1302]);
 title_txt = ['BP - Filtro IIR - Chebyshev I - N = ' num2str(n)];
 title(title_txt);
-% M?scara do filtro projetado
+% M�scara do filtro projetado
 plot([0,f1,f1,f4,f4,2000],-[Ap,Ap,80,80,Ap,Ap], '--r')
 plot([0,f2,f2,f3,f3,2000],-[0,0,As,As,0,0], '--r')
 hold off;
@@ -142,7 +141,7 @@ clear all;
 clc;
 
 Ap = 0.5; % Ganho na banda de passagem em dB
-As = 60; % Atenua??o no stopband em dB
+As = 60; % Atenua��o no stopband em dB
 fa = 6000; % Hz
 f1 = 1200; % Hz
 f2 = 1250; % Hz
@@ -150,7 +149,7 @@ f3 = 1300; % Hz
 f4 = 1400; % Hz
 GdB = 0; % dB
 
-f = [1200 1250 1300 1400]; % frequ?ncias em Hz
+f = [1200 1250 1300 1400]; % frequ�ncias em Hz
 w = f/fa*(2*pi);
 ws1 = w(1)/pi;
 wp1 = w(2)/pi;
@@ -181,7 +180,7 @@ plot(w*fa/2/pi,20*log10(abs(Hw)))
 title_txt = ['BS - Filtro FIR - PM - N = ' num2str(n)];
 title(title_txt);
 hold on;
-% M?scara
+% M�scara
 Amin = 0;
 plot([0,f1,f1,f4,f4,fa/2],-[Ap,Ap,80,80,Ap,Ap], '--r');ylim([-80 5]);xlim([1000 1600]);
 plot([0,f2,f2,f3,f3,fa/2],[0,Amin,-As,-As,Amin,0], '--m');grid on;
@@ -192,7 +191,7 @@ plot(w*fa/2/pi,20*log10(abs(Hw)));ylim([-65 -55]);xlim([1180 1420]);
 title_txt = ['BS - Filtro FIR - PM - N = ' num2str(n)];
 title(title_txt);
 hold on;
-% M?scara
+% M�scara
 Amin = 5;
 plot([0,f1,f1,f4,f4,fa/2],-[Ap,Ap,80,80,Ap,Ap], '--r');
 plot([0,f2,f2,f3,f3,fa/2],[0,Amin,-As,-As,Amin,0], '--m');grid on;
