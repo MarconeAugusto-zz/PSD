@@ -83,7 +83,7 @@ pretty(vpa(Hsn(s), 5))
 
 % Plot filtro BS
 figure(2)
-[h, w] = freqs(bsn,asn, linspace(0, 100, 10000));
+[h, w] = freqs(bsn,asn, linspace(0, 8, 10000));
 plot(w/pi, 20*log10(abs(h))); grid on;hold on;ylim([-65 5]);xlim([0 2])
 title('H(s)');xlabel('rad/s');ylabel('dB');
 % Fazer a mascara em cima do LAMBDA
@@ -129,10 +129,12 @@ plot([0,f2,f2,f3,f3,2000],-[0,0,As,As,0,0], '--r')
 hold off;
 
 figure(4)
-subplot(1,2,1)
-zplane(bzn,azn);title('Diagrama de pólos e zeros');axis([-2 2 -3 3]);
-subplot(1,2,2)
-grpdelay(bzn,azn);title('Atraso de grupo');
+subplot(121)
+zplane(bzn, azn);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+subplot(122)
+grpdelay(bzn, azn);title('Atraso de grupo');
+xlabel('Frequência normalizada [x\pi rad/amostra]');
+ylabel('Atraso de grupo [amostra]');
 
 %% Projeto Filtro FIR - PM
 
@@ -196,10 +198,12 @@ plot([0,f2,f2,f3,f3,fa/2],[0,Amin,-As,-As,Amin,0], '--m');grid on;
 hold off;
 
 
-figure(5);
-subplot(1,2,1)
-zplane(h_pm,1);title('Diagrama de pólos e zeros');axis([-2 2 -3 3]);
-subplot(1,2,2)
-grpdelay(h_pm);title('Atraso de grupo');
+figure(6)
+subplot(121)
+zplane(h_pm,1);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+subplot(122)
+grpdelay(h_pm,1);title('Atraso de grupo');
+xlabel('Frequência normalizada [x\pi rad/amostra]');
+ylabel('Atraso de grupo [amostra]');
 
 

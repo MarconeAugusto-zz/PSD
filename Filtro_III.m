@@ -132,10 +132,12 @@ plot([f2,f2,f3,f3],-[Amin,Ap,Ap,Amin], '--r');
 hold off;
 
 figure(4)
-subplot(1,2,1)
-zplane(bzn,azn);title('Diagrama de pólos e zeros');axis([-2 2 -3 3]);
-subplot(1,2,2)
-grpdelay(bzn,azn);title('Atraso de grupo');
+subplot(121)
+zplane(bzn, azn);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+subplot(122)
+grpdelay(bzn, azn);title('Atraso de grupo');
+xlabel('Frequência normalizada [x\pi rad/amostra]');
+ylabel('Atraso de grupo [amostra]');
 
 %% Projeto BP - Filtro FIR - PM
 
@@ -198,10 +200,11 @@ plot([0,ws1,ws1,ws2,ws2,1]*fa/2,-[As,As,0,0,As,As], '--r'); ylim([-5 2]);xlim([9
 plot([wp1,wp1,wp2,wp2]*fa/2,-[Amin,Ap,Ap,Amin], '--r'); grid on;
 hold off;
 
-figure(6);
-subplot(1,2,1)
-zplane(h_pm,1);title('Diagrama de pólos e zeros');axis([-2 2 -3 3]);
-subplot(1,2,2)
+figure(6)
+subplot(121)
+zplane(h_pm,1);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+subplot(122)
 grpdelay(h_pm,1);title('Atraso de grupo');
-
+xlabel('Frequência normalizada [x\pi rad/amostra]');
+ylabel('Atraso de grupo [amostra]');
 

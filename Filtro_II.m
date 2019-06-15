@@ -112,11 +112,11 @@ hold off;
 
 figure(4)
 subplot(121)
-zplane(bzn, azn);title('Diagrama de pólos e zeros');axis([-2 2 -3 3]);
+zplane(bzn, azn);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
 subplot(122)
-grpdelay(bzn,azn);title('Atraso de grupo');
-
-
+grpdelay(bzn, azn);title('Atraso de grupo');
+xlabel('Frequência normalizada [x\pi rad/amostra]');
+ylabel('Atraso de grupo [amostra]');
 
 %% Projeto Filtro FIR - Janela Fixa
 
@@ -199,6 +199,8 @@ hold off;
 
 figure(6)
 subplot(121)
-zplane(b, 1); title('Diagrama de pólos e zeros');axis([-2 2 -3 3]);
+zplane(b, 1);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
 subplot(122)
-grpdelay(b,1);title('Atraso de grupo');
+grpdelay(b, 1);title('Atraso de grupo');
+xlabel('Frequência normalizada [x\pi rad/amostra]');
+ylabel('Atraso de grupo [amostra]');
