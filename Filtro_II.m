@@ -29,7 +29,7 @@ Op = 1;
 
 % Filtro Chebyshev 2
 Rp = Ap; Rs = As; 
-[n,Wn] = cheb2ord(Op,Os,Rp,Rs,'s')
+[n,Wn] = cheb2ord(Op,Os,Rp,Rs,'s');
 [b,a] = cheby2(n,Rs,Wn,'s');
 
 % Plot protótipo filtro PB
@@ -116,11 +116,12 @@ zplane(bzn, azn);title('Diagrama de pólos e zeros');axis([-2 2 -3 3]);
 subplot(122)
 grpdelay(bzn,azn);title('Atraso de grupo');
 
-%%
+
+
+%% Projeto Filtro FIR - Janela Fixa
+
 clear all;
 clc;
-
-% Projeto Filtro FIR - Janela Fixa
 
 Ap = 0.5; % Ganho na banda de passagem em dB
 As = 40; % Atenuação no stopband em dB

@@ -1,7 +1,8 @@
-%% Dados
-%   BP - (fa = 4000 Hz, f1 = 1000 Hz; f2 = 1200 Hz, f3 = 1250 Hz; f4 = 1300 Hz, Ap = 1 dB, As = 20 dB, GdB = 0 dB)
-%   IIR - Eliptico, FIR - PM
-%%
+% %% Dados
+% %   BP - (fa = 4000 Hz, f1 = 1000 Hz; f2 = 1200 Hz, f3 = 1250 Hz; f4 = 1300 Hz, Ap = 1 dB, As = 20 dB, GdB = 0 dB)
+% %   IIR - Eliptico, FIR - PM
+% %
+%% Projeto Filtro IIR - Elíptico
 
 clear all;
 close all;
@@ -47,16 +48,17 @@ Os = abs((-lambda_s^2+lambda_0^2)/(B*lambda_s));
 Op = 1;
 
 % Filtro elíptico
-[n,Wn] = ellipord(Op,Os,Ap,As,'s')
+[n,Wn] = ellipord(Op,Os,Ap,As,'s');
 [b,a] = ellip(n,Ap,As,Wn,'s');
 
 % Plot protótipo filtro PB
 figure(1)
 [h1,w1] = freqs(b,a,logspace(-2,2,10000));
-semilogx(w1,20*log10(abs(h1)));grid on; ylim([-30 5]);
-title('H(p)');hold on;grid on;
+semilogx(w1,20*log10(abs(h1)));grid on; ylim([-30 5]);hold on;
+title('H(p)');xlabel('rad/s');ylabel('dB');
 plot([10^-2,Os,Os,10^2],[0,0,-As,-As], '--r')
 plot([10^-2,1,1],[-Ap,-Ap,-80], '--r')
+hold off;
 
 % Transformação de frequência Lowpass para Bandpass
 ap = a; bp = b; 
@@ -85,7 +87,7 @@ pretty(vpa(Hsn(s), 5))
 figure(2)
 [h, w] = freqs(bsn,asn,linspace(0, 100, 10000));
 plot(w/pi, 20*log10(abs(h))); grid on;hold on;ylim([-60 5]);xlim([0 2]);
-title('H(s)')
+title('H(s)');xlabel('rad/s');ylabel('dB');
 % Fazer a mascara em cima do LAMBDA
 plot([0,lambda_s1/pi,lambda_s1/pi,lambda_s2/pi,lambda_s2/pi,2],-[As,As,0,0,As,As], '--r')
 plot([lambda_p1/pi,lambda_p1/pi,lambda_p2/pi,lambda_p2/pi],-[80,Ap,Ap,80], '--r')
@@ -112,31 +114,31 @@ figure(3)
 subplot(211)
 [hz, wz] = freqz(bzn,azn, linspace(0, pi, 1000));
 plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-60 5])
-title_txt = ['BP - Filtro IIR - ELÍPTICO - N = ' num2str(n)];
-title(title_txt);
+title_txt = ['BP - Filtro IIR - ELÍPTICO - N = ' num2str(n*2)];
+title(title_txt);xlabel('Hz');ylabel('dB');
 % Máscara do filtro projetado
 plot([0,f1,f1,f4,f4,2000],-[As,As,0,0,As,As], '--r')
 plot([f2,f2,f3,f3],-[40,Ap,Ap,40], '--r')
 hold off;
 
 subplot(212)
-plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-5 2]);xlim([998 1302]);
-title_txt = ['BP - Filtro IIR - ELÍPTICO - N = ' num2str(n)];
-title(title_txt);
+plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-5 2]);xlim([1190 1260]);
+title_txt = ['BP - Filtro IIR - ELÍPTICO - N = ' num2str(n*2)];
+title(title_txt);xlabel('Hz');ylabel('dB');
 % Máscara do filtro projetado
 Amin = 40;
 plot([0,f1,f1,f4,f4,1],-[As,As,0,0,As,As], '--r'); 
-plot([f2,f2,f3,f3],-[Amin,Ap,Ap,Amin], '--m'); 
+plot([f2,f2,f3,f3],-[Amin,Ap,Ap,Amin], '--r'); 
 hold off;
 
 figure(4)
 subplot(1,2,1)
-grpdelay(bzn,azn);
+zplane(bzn,azn);title('Diagrama de pólos e zeros');axis([-2 2 -3 3]);
 subplot(1,2,2)
-zplane(bzn,azn);grid on;
+grpdelay(bzn,azn);title('Atraso de grupo');
 
 %% Projeto BP - Filtro FIR - PM
-%close all;
+
 clear all;
 clc;
 
@@ -163,7 +165,6 @@ devAp = 1-10^(-(Ap/2-0.05)/20);
 devs = [devAs devAp devAs];
 
 % calculo da ordem com firpmord
-%f = f + [0 -170 0 0];
 f = f + [0 -150 0 0];
 [n,f0,a0,w0] = firpmord(f,mags,devs,fa);
 
@@ -174,33 +175,33 @@ h_pm = h_pm*10^(G0/20);
 
 %clear Hw W
 Amin = 60;
-figure(4)
+figure(5)
 subplot(211);
 [Hw,w] = freqz(h_pm,1,10000);
 plot(w*fa/2/pi,20*log10(abs(Hw)));ylim([-Amin 5]);
 title_txt = ['BP - Filtro FIR - PM - N = ' num2str(n)];
-title(title_txt);
+title(title_txt);xlabel('Hz');ylabel('dB');
 hold on
 % Máscara
 plot([0,ws1,ws1,ws2,ws2,1]*fa/2,-[As,As,0,0,As,As], '--r'); ylim([-60 5]);xlim([800 1500]);
-plot([wp1,wp1,wp2,wp2]*fa/2,-[Amin,Ap,Ap,Amin], '--m'); grid on;
+plot([wp1,wp1,wp2,wp2]*fa/2,-[Amin,Ap,Ap,Amin], '--r'); grid on;
 hold off;
+
 subplot(212);
 [Hw,w] = freqz(h_pm,1,10000);
 plot(w*fa/2/pi,20*log10(abs(Hw)));ylim([-Amin 5]);
 title_txt = ['BP - Filtro FIR - PM - N = ' num2str(n)];
-title(title_txt);
+title(title_txt);xlabel('Hz');ylabel('dB');
 hold on
 % Máscara
 plot([0,ws1,ws1,ws2,ws2,1]*fa/2,-[As,As,0,0,As,As], '--r'); ylim([-5 2]);xlim([998 1302]);
-plot([wp1,wp1,wp2,wp2]*fa/2,-[Amin,Ap,Ap,Amin], '--m'); grid on;
+plot([wp1,wp1,wp2,wp2]*fa/2,-[Amin,Ap,Ap,Amin], '--r'); grid on;
 hold off;
 
-figure(5);
+figure(6);
 subplot(1,2,1)
-grpdelay(h_pm);
+zplane(h_pm,1);title('Diagrama de pólos e zeros');axis([-2 2 -3 3]);
 subplot(1,2,2)
-zplane(h_pm,1);
-
+grpdelay(h_pm,1);title('Atraso de grupo');
 
 
