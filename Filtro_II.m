@@ -36,7 +36,7 @@ Rp = Ap; Rs = As;
 figure(1)
 [h1,w1] = freqs(b,a,logspace(-2,1,1000));
 semilogx(w1,20*log10(abs(h1)));grid on; ylim([-60 5]);
-title('H(p)')
+title('H(p)');xlabel('rad/s');ylabel('dB');
 hold on
 grid on
 plot([10^-2,Os,Os,10^1],[0,0,-As,-As], '--r')
@@ -52,7 +52,7 @@ pretty(vpa(collect(Hp(p)), 5))
 
 % transformação de frequência
 syms s;
-Hs(s) = collect(subs(Hp(p),lambda_p/s));%transformação lowpass/bandstop
+Hs(s) = collect(subs(Hp(p),lambda_p/s));%transformação lowpass -> bandstop
 [N, D] = numden(Hs(s));
 pretty(vpa(Hs(s), 5))
 
@@ -69,7 +69,7 @@ pretty(vpa(Hsn(s), 5))
 figure(2)
 [h, w] = freqs(bsn,asn, linspace(0, 100, 10000));
 plot(w/pi, 20*log10(abs(h))); grid on;hold on;ylim([-80 10]);xlim([0 2])
-title('H(s)')
+title('H(s)');xlabel('rad/s');ylabel('dB');
 % Fazer a mascara em cima do LAMBDA
 plot([0,lambda_s/pi,lambda_s/pi,2],[-As,-As,0,0], '--r')
 plot([lambda_p/pi,lambda_p/pi,2],[-80,-Ap,-Ap], '--r')
@@ -95,16 +95,16 @@ subplot(211)
 [hz, wz] = freqz(bzn,azn, linspace(0, pi, 1000));
 plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-60 5])
 title_txt = ['H(z) - BP - Filtro IIR - Chebyshev II - N = ' num2str(n)];
-title(title_txt);
+title(title_txt);xlabel('Hz');ylabel('dB');
 % Máscara do filtro projetado
 plot([0,fs,fs,2000],[-As,-As,0,0], '--r')
 plot([fp,fp,2000],[-60,-Ap,-Ap], '--r')
 hold off;
 
 subplot(212)
-plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-5 2]);xlim([990 1310]);
+plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-5 2]);xlim([1250 2000]);
 title_txt = ['H(z) - BP - Filtro IIR - Chebyshev II - N = ' num2str(n)];
-title(title_txt);
+title(title_txt);xlabel('Hz');ylabel('dB');
 % Máscara do filtro projetado
 plot([0,fs,fs,2000],[-As,-As,0,0], '--r')
 plot([fp,fp,2000],[-80,-Ap,-Ap], '--r')
@@ -112,10 +112,9 @@ hold off;
 
 figure(4)
 subplot(121)
-grpdelay(bzn,azn);
+zplane(bzn, azn);title('Diagrama de pólos e zeros');axis([-2 2 -3 3]);
 subplot(122)
-zplane(bzn, azn);
-
+grpdelay(bzn,azn);title('Atraso de grupo');
 
 %%
 clear all;
@@ -144,11 +143,14 @@ Dw = ws - wp;
 %M = ceil(3.32*pi/Dw); % ordem (3.32 tabela Hamming)
 M = ceil(3.11*pi/Dw); % ordem (3.11 tabela Hann)
 
+%Ajuste de ordem
+    M= M-4; 
+
 %Ajuste do ganho
     %levar o pico para abaixo de 0
     ganho = 0.05501; %ganho dB mediddo no plot do filtro
     g0 = ganho;
-% 
+
 % primeiro ajuste de M (N/2)
     wp1 = 0.4998*pi; ws1 = ws; % valores medidos no gráfico
     Dw1 = ws1 - wp1;
@@ -156,7 +158,7 @@ M = ceil(3.11*pi/Dw); % ordem (3.11 tabela Hann)
     M = M2; 
 
 wc = sqrt(wp*ws);   % frequência de corte, média das frequências
-
+wc = wc + 0.0440;   % ajuste da frequencia de corte
 k = 1:M;
 
 % Highpass
@@ -175,30 +177,27 @@ ws = w(2);
 wp = w(1);
 
 figure(5)
-subplot(321)
+subplot(211)
 [h, w] = freqz(b,1,linspace(0,pi,10000)); 
-%plot(w/pi,abs(h)); grid on; xlim([0 1])    %dominio do tempo
 hold on;
-plot(w/pi,20*log10(abs(h))); grid on; xlim([0 1]);title('Resposta de magnitude de H(z)');ylim([-80 5]);
-plot([0 wp/pi wp/pi 1],[-As -As 0 0], '--red')
-plot([ws/pi,ws/pi,1],[-60 -Ap,-Ap], '--red')
+plot(w/pi*fa/2,20*log10(abs(h))); grid on;ylim([-80 5]);
+title_txt = ['H(z) - BP - FIR - Janela Fixa - N = ' num2str(M*2)];
+title(title_txt);xlabel('Hz');ylabel('dB');
+plot([0 f1 f1 2000],[-As -As 0 0], '--red')
+plot([f2,f2,2000],[-80 -Ap,-Ap], '--red')
 hold off;
 
-subplot(322)
-stem([flip(bi) b0 bi]); grid on;title('Resposta ao impulso');
-
-subplot(3,2,[4 6])
-zplane(b, 1)
-axis([-2 2 -2 2]);
-
-subplot(323)
-plot(w/pi, unwrap(angle(h))/pi); grid on;title('Resposta de fase de H(z)');
-subplot(325)
-grpdelay(b, 1);title('Atraso de grupo');
+subplot(212)
+plot(w/pi*fa/2,20*log10(abs(h))); grid on;ylim([-5 2]);xlim([1250 2000]);
+hold on;
+title_txt = ['H(z) - BP - FIR - Janela Fixa - N = ' num2str(M*2)];
+title(title_txt);xlabel('Hz');ylabel('dB');
+plot([0 f1 f1 2000],[-As -As 0 0], '--red')
+plot([f2,f2,2000],[-80 -Ap,-Ap], '--red')
+hold off;
 
 figure(6)
-hold on;
-plot(w/pi,20*log10(abs(h))); grid on; xlim([0 1]);title('Resposta de magnitude de H(z)');ylim([-80 5]);
-plot([0 wp/pi wp/pi 1],[-As -As 0 0], '--red')
-plot([ws/pi,ws/pi,1],[-40 -Ap,-Ap], '--red')
-hold off;
+subplot(121)
+zplane(b, 1); title('Diagrama de pólos e zeros');axis([-2 2 -3 3]);
+subplot(122)
+grpdelay(b,1);title('Atraso de grupo');
