@@ -1,8 +1,8 @@
-%% Dados
-%   BS - (fa = 6000 Hz, f1 = 1200 Hz; f2 = 1250 Hz, f3 = 1300 Hz; f4 = 1400 Hz, Ap = 0.5 dB, As = 60 dB, GdB = 0 dB)
-%   IIR - Chebyshev I, FIR - PM
+% %% Dados
+% %   BS - (fa = 6000 Hz, f1 = 1200 Hz; f2 = 1250 Hz, f3 = 1300 Hz; f4 = 1400 Hz, Ap = 0.5 dB, As = 60 dB, GdB = 0 dB)
+% %   IIR - Chebyshev I, FIR - PM
 
-% Projeto Filtro IIR - Chebyshev I
+%% Projeto Filtro IIR - Chebyshev I
 
 clear all;
 close all;
@@ -47,14 +47,14 @@ Op = 1;
 
 % Filtro Chebyshev 1
 Rp = Ap; Rs = As;
-[n,Wn] = cheb1ord(Op,Os,Rp,Rs,'s')
+[n,Wn] = cheb1ord(Op,Os,Rp,Rs,'s');
 [b,a] = cheby1(n,Rp,Wn,'s');
 
 % Plot protótipo filtro PB
 figure(1)
 [h1,w1] = freqs(b,a,logspace(-2,1,1000));
 semilogx(w1,20*log10(abs(h1)));grid on; ylim([-65 5]);
-title('H(p)');hold on;
+title('H(p)');hold on;xlabel('rad/s');ylabel('dB');
 plot([10^-2,Os,Os,10^2],[0,0,-As,-As], '--r')
 plot([10^-2,1,1],[-Ap,-Ap,-80], '--r')
 
@@ -85,7 +85,7 @@ pretty(vpa(Hsn(s), 5))
 figure(2)
 [h, w] = freqs(bsn,asn, linspace(0, 100, 10000));
 plot(w/pi, 20*log10(abs(h))); grid on;hold on;ylim([-65 5]);xlim([0 2])
-title('H(s)')
+title('H(s)');xlabel('rad/s');ylabel('dB');
 % Fazer a mascara em cima do LAMBDA
 plot([0,lambda_s1/pi,lambda_s1/pi,lambda_s2/pi,lambda_s2/pi,2],-[0,0,As,As,0,0], '--r')
 plot([0,lambda_p1/pi,lambda_p1/pi],-[Ap,Ap,80], '--r')
@@ -112,8 +112,8 @@ figure(3)
 subplot(211)
 [hz, wz] = freqz(bzn,azn, linspace(0, pi, 1000));
 plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-65 5]);xlim([0 2e3]);
-title_txt = ['BS - Filtro IIR - Chebyshev I - N = ' num2str(n)];
-title(title_txt);
+title_txt = ['BS - Filtro IIR - Chebyshev I - N = ' num2str(n*2)];
+title(title_txt);xlabel('Hz');ylabel('dB');
 % Máscara do filtro projetado
 plot([0,f1,f1,f4,f4,2000],-[Ap,Ap,80,80,Ap,Ap], '--r')
 plot([0,f2,f2,f3,f3,2000],-[0,0,As,As,0,0], '--r')
@@ -121,8 +121,8 @@ hold off;
 
 subplot(212)
 plot(wz/pi*fa/2, 20*log10(abs(hz))); grid on;hold on;ylim([-5 2]);xlim([998 1302]);
-title_txt = ['BP - Filtro IIR - Chebyshev I - N = ' num2str(n)];
-title(title_txt);
+title_txt = ['BP - Filtro IIR - Chebyshev I - N = ' num2str(n*2)];
+title(title_txt);xlabel('Hz');ylabel('dB');
 % Máscara do filtro projetado
 plot([0,f1,f1,f4,f4,2000],-[Ap,Ap,80,80,Ap,Ap], '--r')
 plot([0,f2,f2,f3,f3,2000],-[0,0,As,As,0,0], '--r')
@@ -130,12 +130,11 @@ hold off;
 
 figure(4)
 subplot(1,2,1)
-grpdelay(bzn,azn);
+zplane(bzn,azn);title('Diagrama de pólos e zeros');axis([-2 2 -3 3]);
 subplot(1,2,2)
-zplane(bzn,azn);grid on;
+grpdelay(bzn,azn);title('Atraso de grupo');
 
-%%
-% Projeto Filtro FIR - PM
+%% Projeto Filtro FIR - PM
 
 clear all;
 clc;
@@ -159,7 +158,6 @@ mags = [1 0 1];
 
 % [n,fo,ao,w] = firpmord(f,a,dev,fs)
 devAs = 10^(-(As-3.5)/20);
-%devAp = 1-10^(-(Ap/2-0.05)/20);
 devAp = 1-10^(-(Ap/2+0.05)/20);
 devs = [devAp devAs devAp];
 
@@ -178,21 +176,21 @@ subplot(211)
 [Hw,w] = freqz(h_pm,1,10000);
 plot(w*fa/2/pi,20*log10(abs(Hw)))
 title_txt = ['BS - Filtro FIR - PM - N = ' num2str(n)];
-title(title_txt);
+title(title_txt);xlabel('Hz');ylabel('dB');
 hold on;
 % Máscara
 Amin = 0;
 plot([0,f1,f1,f4,f4,fa/2],-[Ap,Ap,80,80,Ap,Ap], '--r');ylim([-80 5]);xlim([1000 1600]);
-plot([0,f2,f2,f3,f3,fa/2],[0,Amin,-As,-As,Amin,0], '--m');grid on;
+plot([0,f2,f2,f3,f3,fa/2],[Amin,Amin,-As,-As,Amin,Amin], '--m');grid on;
 hold off;
+
 subplot(212)
 [Hw,w] = freqz(h_pm,1,10000);
-plot(w*fa/2/pi,20*log10(abs(Hw)));ylim([-65 -55]);xlim([1180 1420]);
+plot(w*fa/2/pi,20*log10(abs(Hw)));ylim([-65 -55]);xlim([1225 1375]);
 title_txt = ['BS - Filtro FIR - PM - N = ' num2str(n)];
-title(title_txt);
+title(title_txt);xlabel('Hz');ylabel('dB');
 hold on;
 % Máscara
-Amin = 5;
 plot([0,f1,f1,f4,f4,fa/2],-[Ap,Ap,80,80,Ap,Ap], '--r');
 plot([0,f2,f2,f3,f3,fa/2],[0,Amin,-As,-As,Amin,0], '--m');grid on;
 hold off;
@@ -200,8 +198,8 @@ hold off;
 
 figure(5);
 subplot(1,2,1)
-grpdelay(h_pm);
+zplane(h_pm,1);title('Diagrama de pólos e zeros');axis([-2 2 -3 3]);
 subplot(1,2,2)
-zplane(h_pm,1);
+grpdelay(h_pm);title('Atraso de grupo');
 
 
