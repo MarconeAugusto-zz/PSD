@@ -63,10 +63,9 @@ asn = as/an;
 Hsn(s) = poly2sym(bsn,s) / poly2sym(asn,s);
 pretty(vpa(Hsn(s),5))
 
-clear h w
 figure(2)
-[h,w] = freqs(bsn,asn,linspace(0,8,10000));
-plot(w,20*log10(abs(h)));
+[hs,ws] = freqs(bsn,asn,linspace(0,8,10000));
+plot(ws, 20*log10(abs(hs)));
 ylim([-80 10])
 title('H(s)')
 grid on
@@ -134,9 +133,15 @@ wp = fp/(fa);
 ws = fs/(fa);
 dw = (2*pi)*(ws - wp);
 
-As = As + 0.6;
-dw = dw + 0.023;
+As = As + 2.77;
+dw = dw + 0.09;
 n = ceil((As - 8)/(2.285*dw) +1);
+% n = n - 2;
+
+if mod(n,2) == 1 
+    %impar
+    n = n+1;
+end 
 
 % As = alpha
 if As > 50
@@ -153,18 +158,16 @@ wc = 2*pi*sqrt(wp*ws); % frequ??ncia de corte, m??dia das frequ??ncias
 
 k = 1:(n/2);
 
-g0 = 0;
-
 b1 = sin(k*wc)./(k*pi);
 % b0 = sin(0*wc)./(0*pi); % sem L'Hospital
 b0 = wc/pi; % L'Hospital do b0 acima
 b = [flip(b1) b0 b1];
 b = b.'; % matriz b transposta
-b = b.*Jkaiser*10^(-g0/20);
+b = b.*Jkaiser*10^(GdB/20)*10^(-0.189/20);
 
 fmax = fa/2;
 [h, w] = freqz(b,1,linspace(0,pi,10000)); 
 plot(w/pi*fa/2, 20*log10(abs(h))); grid on;
 hold on;
-plot([0,fs,fs,fmax],[0,0,-As,-As], '--red')
-plot([0,fp,fp],[-Ap,-Ap,-140], '--red')
+plot([0,fs,fs,fmax],[0,0,-As,-As]+GdB, '--red')
+plot([0,fp,fp],[-Ap,-Ap,-140]+GdB, '--red')
