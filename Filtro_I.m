@@ -32,8 +32,8 @@ n = ceil((log((10^(0.1*As)-1)/E^2))/(2*log(Ws))); % ordem do filtro
 k = 1:n;
 pk = E^(-1/n)*exp((1j*(2*k+n-1)/(2*n)*pi));
 
-a = real(poly(pk)); % denominador
-b = a(end);         % numerador
+a = real(poly(pk));         % denominador
+b = 10^(GdB/20)*(a(end));   % numerador
 
 syms p
 Np(p) = poly2sym(b, p);
@@ -45,8 +45,8 @@ figure(1)
 [h, w] = freqs(b,a, logspace(-1, 1, 10000));
 semilogx(w, 20*log10(abs(h)));ylim([-60 10]);grid on;hold on;
 % Máscara
-plot([0.1,Ws,Ws,10],[0,0,-As,-As], '--r')
-plot([0.1,Wp,Wp,],[-Ap,-Ap,-80], '--r')
+plot([0.1,Ws,Ws,10],[0,0,-As,-As]+GdB, '--r')
+plot([0.1,Wp,Wp,],[-Ap,-Ap,-80]+GdB, '--r')
 title('H(p)');xlabel('rad/s');ylabel('dB');
 
 syms s
@@ -70,8 +70,8 @@ plot(ws/pi, 20*log10(abs(hs)));ylim([-60 10]);
 title('H(s)');xlabel('rad/s');ylabel('dB');
 grid on; hold on;
 % Fazer a máscara em cima do LAMBDA
-plot([0,lambdas/pi,lambdas/pi,2],[0,0,-As,-As], '--r')
-plot([0,lambdap/pi,lambdap/pi],[-Ap,-Ap,-80], '--r')
+plot([0,lambdas/pi,lambdas/pi,2],[0,0,-As,-As]+GdB, '--r')
+plot([0,lambdap/pi,lambdap/pi],[-Ap,-Ap,-80]+GdB, '--r')
 
 syms z;
 aux = 2*((z-1)/(z+1));
@@ -97,17 +97,17 @@ title_txt = ['H(z) - BP - Filtro IIR - Butterworth - N = ' num2str(n)];
 title(title_txt);xlabel('Hz');ylabel('dB');
 grid on;hold on;
 % Máscara
-plot([0.01,fs,fs,2000],[0,0,-As,-As], '--r')
-plot([0.01,fp,fp,],[-Ap,-Ap,-80], '--r')
+plot([0.01,fs,fs,2000],[0,0,-As,-As]+GdB, '--r')
+plot([0.01,fp,fp,],[-Ap,-Ap,-80]+GdB, '--r')
 
 subplot(212)
-plot(wz/pi*fa/2, 20*log10(abs(hz)));ylim([-5 5]);xlim([800 1100]);
+plot(wz/pi*fa/2, 20*log10(abs(hz)));ylim([0 8]);xlim([800 1100]);
 title_txt = ['H(z) - BP - Filtro IIR - Butterworth - N = ' num2str(n)];
 title(title_txt);xlabel('Hz');ylabel('dB');
 grid on;hold on;
 % Máscara
-plot([0.01,fs,fs,2000],[0,0,-As,-As], '--r')
-plot([0.01,fp,fp,],[-Ap,-Ap,-80], '--r')
+plot([0.01,fs,fs,2000],[0,0,-As,-As]+GdB, '--r')
+plot([0.01,fp,fp,],[-Ap,-Ap,-80]+GdB, '--r')
 
 figure(4)
 subplot(121)
@@ -116,7 +116,6 @@ subplot(122)
 grpdelay(bzn, azn);title('Atraso de grupo');
 xlabel('Frequência normalizada [x\pi rad/amostra]');
 ylabel('Atraso de grupo [amostra]');
-
 %% Projeto Filtro FIR - Janela Ajustável
 
 clear all;
