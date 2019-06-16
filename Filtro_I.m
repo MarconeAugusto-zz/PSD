@@ -144,15 +144,18 @@ if mod(n,2) == 1
     n = n+1;
 end 
 
-n = n-6;
-
 % Ajuste do ganho
-    GdB = GdB - 0.039;
-% Primeiro ajuste de M
-    wp1 = 0.5177*pi; ws1 = 0.6641*pi;
+    GdB = GdB - 0.0379;
+% % Primeiro ajuste de M
+    wp1 = 0.5318*pi; ws1 = 0.6373*pi;
     Dw1 = ws1-wp1;
     n1 = ceil(n*Dw1/dw);
     n = n1;
+% % Segundo ajuste de M
+    wp2 = 0.5178*pi; ws2 = 0.6641*pi;
+    Dw2 = ws2-wp2;
+    n2 = ceil(n*Dw2/dw);
+    n = n2;
     wc = wc - 0.015*pi;
 
 Jkaiser = kaiser(n+1,betha);
@@ -192,3 +195,4 @@ subplot(122)
 grpdelay(b,1);title('Atraso de grupo');
 xlabel('Frequência normalizada [x\pi rad/amostra]');
 ylabel('Atraso de grupo [amostra]');
+
