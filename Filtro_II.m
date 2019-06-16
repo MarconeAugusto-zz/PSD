@@ -68,7 +68,7 @@ pretty(vpa(Hsn(s), 5))
 % Plot filtro HP
 figure(2)
 [h, w] = freqs(bsn,asn, linspace(0, 100, 10000));
-plot(w/pi, 20*log10(abs(h))); grid on;hold on;ylim([-80 10]);xlim([0 2])
+plot(w/pi, 20*log10(abs(h))); grid on;hold on;ylim([-80 5]);xlim([0 2])
 title('H(s)');xlabel('rad/s');ylabel('dB');
 % Fazer a mascara em cima do LAMBDA
 plot([0,lambda_s/pi,lambda_s/pi,2],[-As,-As,0,0], '--r')
@@ -180,9 +180,9 @@ wp = w(1);
 figure(5)
 subplot(211)
 [h, w] = freqz(b,1,linspace(0,pi,10000)); 
-hold on;
 plot(w/pi*fa/2,20*log10(abs(h))); grid on;ylim([-80 5]);
 title_txt = ['H(z) - BP - FIR - Janela Fixa - N = ' num2str(M*2)];
+hold on;
 title(title_txt);xlabel('Hz');ylabel('dB');
 plot([0 f1 f1 2000],[-As -As 0 0], '--red')
 plot([f2,f2,2000],[-80 -Ap,-Ap], '--red')
