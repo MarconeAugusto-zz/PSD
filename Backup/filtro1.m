@@ -122,52 +122,75 @@ ylabel('Atraso de grupo [amostra]');
 
 %% Projeto Filtro FIR - Janela Ajustavel
 
+clear all;
+close all; %%%%%%%%%%%%%
+clc;
+
 Ap = 2; % Ganho na banda de passagem em dB
-As = 30; % Atenua????o no stopband em dB
+As = 30; % Atenuação no stopband em dB
 fa = 4000; % Hz
 fp = 1000; % Hz
 fs = 1300; % Hz
 GdB = 5; % dB
 
-wp = fp/(fa);
-ws = fs/(fa);
-dw = (2*pi)*(ws - wp);
+ganho = GdB;
 
-As = As + 2.77;
-dw = dw + 0.09;
+wp = fp/(fa)*(2*pi);
+ws = fs/(fa)*(2*pi);
+dw = (ws - wp);
+wc = sqrt(wp*ws); % frequência de corte
+betha = 0.5842*(As-21)^0.4+0.07886*(As-21);
 n = ceil((As - 8)/(2.285*dw) +1);
-% n = n - 2;
 
 if mod(n,2) == 1 
     %impar
     n = n+1;
 end 
 
-% As = alpha
-if As > 50
-    betha = 0.1102*(As-8.7);
-elseif (50 >= As) && (As >= 21)
-    betha = 0.5842*(As-21)^0.4+0.07886*(As-21);
-else
-    betha = 0;
-end
+n = n-6;
+
+% Ajuste do ganho
+    GdB = GdB - 0.039;
+% Primeiro ajuste de M
+    wp1 = 0.5177*pi; ws1 = 0.6641*pi;
+    Dw1 = ws1-wp1;
+    n1 = ceil(n*Dw1/dw);
+    n = n1;
+    wc = wc - 0.015*pi;
 
 Jkaiser = kaiser(n+1,betha);
 
-wc = 2*pi*sqrt(wp*ws); % frequ??ncia de corte, m??dia das frequ??ncias
-
 k = 1:(n/2);
-
 b1 = sin(k*wc)./(k*pi);
-% b0 = sin(0*wc)./(0*pi); % sem L'Hospital
 b0 = wc/pi; % L'Hospital do b0 acima
 b = [flip(b1) b0 b1];
 b = b.'; % matriz b transposta
 b = b.*Jkaiser*10^(GdB/20)*10^(-0.189/20);
 
-fmax = fa/2;
-[h, w] = freqz(b,1,linspace(0,pi,10000)); 
+figure(5)
+subplot(211)
+[h, w] = freqz(b, 1, linspace(0,pi,10000));
 plot(w/pi*fa/2, 20*log10(abs(h))); grid on;
-hold on;
-plot([0,fs,fs,fmax],[0,0,-As,-As]+GdB, '--red')
-plot([0,fp,fp],[-Ap,-Ap,-140]+GdB, '--red')
+ylim([-60 10])
+hold on;title_txt = ['BP - Filtro FIR - Janela ajustável Kaiser - N = ' num2str(n)];
+title(title_txt);xlabel('Hz');ylabel('dB');
+fmax = fa/2;
+% Máscara
+plot([0,fs,fs,fmax],[0,0,-As,-As]+ganho, '--red')
+plot([0,fp,fp],[-Ap,-Ap,-140]+ganho, '--red');hold off;
+
+subplot(212)
+plot(w/pi*fa/2, 20*log10(abs(h))); grid on;hold on;
+title_txt = ['BP - Filtro FIR - Janela ajustável Kaiser - N = ' num2str(n)];
+title(title_txt);xlabel('Hz');ylabel('dB');xlim([900 1100]); ylim([-5 10]);
+% Máscara
+plot([0,fs,fs,fmax],[0,0,-As,-As]+ganho, '--red')
+plot([0,fp,fp],[-Ap,-Ap,-140]+ganho, '--red');hold off;
+
+figure(6)
+subplot(121)
+zplane(h,1);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+subplot(122)
+grpdelay(h,1);title('Atraso de grupo');
+xlabel('Frequência normalizada [x\pi rad/amostra]');
+ylabel('Atraso de grupo [amostra]');
