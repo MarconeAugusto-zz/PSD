@@ -4,7 +4,7 @@
 
 %% Projeto Filtro IIR - Butterworth
 
-clear aal;
+clear all;
 close all;
 clc;
 
@@ -69,7 +69,7 @@ figure(2)
 plot(ws/pi, 20*log10(abs(hs)));ylim([-60 10]);
 title('H(s)');xlabel('rad/s');ylabel('dB');
 grid on; hold on;
-% Fazer a mascara em cima do LAMBDA
+% Fazer a máscara em cima do LAMBDA
 plot([0,lambdas/pi,lambdas/pi,2],[0,0,-As,-As], '--r')
 plot([0,lambdap/pi,lambdap/pi],[-Ap,-Ap,-80], '--r')
 
@@ -129,77 +129,67 @@ f1 = 1000; % Hz
 f2 = 1300; % Hz
 GdB = 5; % dB
 
-%G0 = GdB;
-G0 = 0; %%%%%%%%%%%%%%%%%teste
+fp = f1; fs = f2;
 
-f = [1000 1300]; % frequências em Hz
-% substituindo de Hz para ômega
-w = f/fa*(2*pi); %w = 2*pi*f
-wp = w(1);
-ws = w(2);
-Dw = ws - wp;   %largura da banda de transição
+ganho = GdB;
+
+wp = fp/(fa)*(2*pi);
+ws = fs/(fa)*(2*pi);
+dw = (ws - wp);
 wc = sqrt(wp*ws); % frequência de corte
+betha = 0.5842*(As-21)^0.4+0.07886*(As-21);
+n = ceil((As - 8)/(2.285*dw) +1);
 
-M =9;
+if mod(n,2) == 1 
+    %impar
+    n = n+1;
+end 
 
-% %Ajuste do ganho
-    %levar o pico para abaixo de 0
-    ganho = 0.321-GdB; %ganho dB mediddo no plot do filtro
-    G0 = ganho;
-    
-% primeiro ajuste de M (N/2)
-    wp1 = 0.5183*pi; ws1 = 0.6641*pi; % valores medidos no gráfico
-    Dw1 = ws1 - wp1;
-    M1 = ceil(M*Dw1/Dw);
-    M = M1; 
+n = n-6;
+
+% Ajuste do ganho
+    GdB = GdB - 0.039;
+% Primeiro ajuste de M
+    wp1 = 0.5177*pi; ws1 = 0.6641*pi;
+    Dw1 = ws1-wp1;
+    n1 = ceil(n*Dw1/dw);
+    n = n1;
     wc = wc - 0.015*pi;
 
-betha = 0.5842*(As-21)^0.4 + 0.07886*(As-21); %janela Kaiser, usa essa formula pois As = 30
-N = ceil((As - 8)/(2.285*Dw)+1);
-wkaiser = kaiser(N, betha);
+Jkaiser = kaiser(n+1,betha);
 
-%M = N; %como determinar o M ? é arbitrario ?
+k = 1:(n/2);
+b1 = sin(k*wc)./(k*pi);
+b0 = wc/pi; % L'Hospital do b0 acima
+b = [flip(b1) b0 b1];
+b = b.'; % matriz b transposta
+b = b.*Jkaiser*10^(GdB/20)*10^(-0.189/20);
 
-N = 2*M+1;
-wcheb = chebwin(N, As-8)';
-
-k = 1:M;
-
-bi = sin(wc*k)./(pi*k);
-b0 = wc/pi;
-b = [flip(bi) b0 bi];
-
-m = -M:M;
-b = b.*wcheb*10^(-G0/20); % janela de keiser
-
-subplot(3,2,[4 6])
-zplane(b, 1);
-axis([-2 2 -2 2])
-[h, w] = freqz(b, 1, 'whole');
-subplot(322)
-stem(b), grid on;
-subplot(321)
+figure(5)
+subplot(211)
 [h, w] = freqz(b, 1, linspace(0,pi,10000));
-% plot(w/pi, abs(h)); grid on;
-plot(w/pi, 20*log10(abs(h))); grid on; ylim([-80 10]);
-hold on;
-plot([0,wp,wp]/pi,[-Ap,-Ap,-85]+GdB, '-red')
-plot([0,ws/pi,ws/pi,1],[0,0,-As,-As]+GdB, '-red')
+plot(w/pi*fa/2, 20*log10(abs(h))); grid on;
+ylim([-60 10])
+hold on;title_txt = ['BP - Filtro FIR - Janela ajustável Kaiser - N = ' num2str(n)];
+title(title_txt);xlabel('Hz');ylabel('dB');
+fmax = fa/2;
+% Máscara
+plot([0,fs,fs,fmax],[0,0,-As,-As]+ganho, '--red')
+plot([0,fp,fp],[-Ap,-Ap,-140]+ganho, '--red');hold off;
 
+subplot(212)
+plot(w/pi*fa/2, 20*log10(abs(h))); grid on;hold on;
+title_txt = ['BP - Filtro FIR - Janela ajustável Kaiser - N = ' num2str(n)];
+title(title_txt);xlabel('Hz');ylabel('dB');xlim([800 1020]); ylim([-5 10]);
+% Máscara
+plot([0,fs,fs,fmax],[0,0,-As,-As]+ganho, '--red')
+plot([0,fp,fp],[-Ap,-Ap,-140]+ganho, '--red');
+hold off;
 
-subplot(323)
-plot(w/pi, unwrap(angle(h))/pi); grid on;
-subplot(325)
-grpdelay(b, 1)
-
-figure(2)
-[h, w] = freqz(b, 1, linspace(0,pi,10000));
-% plot(w/pi, abs(h)); grid on;
-plot(w/pi, 20*log10(abs(h))); grid on;
-ylim([-80 10])
-hold on;
-plot([0,wp,wp]/pi,[-Ap,-Ap,-85]+GdB, '-red')
-plot([0,ws/pi,ws/pi,1],[0,0,-As,-As]+GdB, '-red')
-
-
-
+figure(6)
+subplot(121)
+zplane(b,1);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+subplot(122)
+grpdelay(b,1);title('Atraso de grupo');
+xlabel('Frequência normalizada [x\pi rad/amostra]');
+ylabel('Atraso de grupo [amostra]');
