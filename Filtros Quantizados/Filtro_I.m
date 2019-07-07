@@ -127,9 +127,9 @@ x=10^(-0.174/20);
 % valores retirados do Filter Designer
 Den = [1 0.15625 1.0625 0.125 0.28125 0.03125 0.03125 0 0]; 
 Num = [0.03125 0.15625 0.53125 1.0625 1.3125 1.0625 0.53125 0.15625 0.03125];
-q=quantizer([6,5]);
-xq=quantize(q,x)
-binxq=num2bin(q,xq);
+q = quantizer([6,5]);
+xq = quantize(q,x)
+binxq = num2bin(q,xq);
 N = Num*xq;
 D = Den;
 plot(wz/pi*fa/2, 20*log10(abs(hz)));
@@ -141,6 +141,8 @@ title(title_txt);xlabel('Hz');ylabel('dB');
 % Máscara
 plot([0.01,fs,fs,2000],[0,0,-As,-As]+GdB, '--r')
 plot([0.01,fp,fp,],[-Ap,-Ap,-80]+GdB, '--r')
+legend('Filtro projetado','Filtro quantizado');
+hold off;
 
 subplot(212)
 plot(wz/pi*fa/2, 20*log10(abs(hz)));ylim([0 8]);xlim([800 1010]);
@@ -151,13 +153,14 @@ plot(wzq/pi*fa/2, 20*log10(abs(hzq)));
 % Máscara
 plot([0.01,fs,fs,2000],[0,0,-As,-As]+GdB, '--r')
 plot([0.01,fp,fp,],[-Ap,-Ap,-80]+GdB, '--r')
+legend('Filtro projetado','Filtro quantizado');
 hold off;
 
 figure(6)
 subplot(121)
-zplane(bzn, azn);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+zplane(bzn, azn);title('Diagrama de pólos e zeros projetado');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
 subplot(122)
-zplane(N, D);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+zplane(N, D);title('Diagrama de pólos e zeros quantizado');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
 hold off;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Projeto Filtro FIR - Janela Ajustável
@@ -251,8 +254,7 @@ q=quantizer([8,7]);
 xq=quantize(q,x)
 binxq=num2bin(q,xq);
 N = Num*xq;
-plot(w/pi*fa/2, 20*log10(abs(h))); grid on;
-grid on;hold on;
+plot(w/pi*fa/2, 20*log10(abs(h))); grid on;hold on;
 [hq, wq] = freqz(N, 1, linspace(0, pi, 10000));
 plot(wq/pi*fa/2, 20*log10(abs(hq)));ylim([-40 10]);
 title_txt = ['BP - Filtro FIR - Janela ajustável Kaiser - N = ' num2str(n)];
@@ -260,6 +262,8 @@ title(title_txt);xlabel('Hz');ylabel('dB');
 % Máscara
 plot([0.01,fs,fs,2000],[0,0,-As,-As]+GdB, '--r')
 plot([0.01,fp,fp,],[-Ap,-Ap,-80]+GdB, '--r')
+legend('Filtro projetado','Filtro quantizado');
+hold off;
 
 subplot(212)
 plot(w/pi*fa/2, 20*log10(abs(h)));ylim([0 8]);xlim([800 1010]);
@@ -270,13 +274,14 @@ plot(wq/pi*fa/2, 20*log10(abs(hq)));
 % Máscara
 plot([0.01,fs,fs,2000],[0,0,-As,-As]+GdB, '--r')
 plot([0.01,fp,fp,],[-Ap,-Ap,-80]+GdB, '--r')
+legend('Filtro projetado','Filtro quantizado');
 hold off;
 
 figure(10)
 subplot(121)
-zplane(b, 1);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+zplane(b, 1);title('Diagrama de pólos e zeros projetado');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
 subplot(122)
-zplane(N, 1);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+zplane(N, 1);title('Diagrama de pólos e zeros quantizado');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
 hold off;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

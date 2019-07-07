@@ -135,6 +135,8 @@ title(title_txt);xlabel('Hz');ylabel('dB');
 % Máscara do filtro projetado
 plot([0,fs,fs,2000],[-As,-As,0,0], '--r')
 plot([fp,fp,2000],[-60,-Ap,-Ap], '--r')
+legend('Filtro projetado','Filtro quantizado');
+hold off;
 
 subplot(212)
 plot(wz/pi*fa/2, 20*log10(abs(hz)));ylim([-5 2]);xlim([1250 2000]);
@@ -145,12 +147,14 @@ plot(wzq/pi*fa/2, 20*log10(abs(hzq)));
 % Máscara do filtro projetado
 plot([0,fs,fs,2000],[-As,-As,0,0], '--r')
 plot([fp,fp,2000],[-60,-Ap,-Ap], '--r')
+legend('Filtro projetado','Filtro quantizado');
+hold off;
 
 figure(6)
 subplot(121)
-zplane(bzn, azn);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+zplane(bzn, azn);title('Diagrama de pólos e zeros projetado');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
 subplot(122)
-zplane(N, D);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+zplane(N, D);title('Diagrama de pólos e zeros quantizado');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
 hold off;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -260,6 +264,7 @@ title(title_txt);xlabel('Hz');ylabel('dB');
 % Máscara
 plot([0 f1 f1 2000],[-As -As 0 0], '--red')
 plot([f2,f2,2000],[-80 -Ap,-Ap], '--red')
+legend('Filtro projetado','Filtro quantizado');
 hold off;
 
 subplot(212)
@@ -271,12 +276,13 @@ plot(wq/pi*fa/2, 20*log10(abs(hq)));
 % Máscara
 plot([0 f1 f1 2000],[-As -As 0 0], '--red')
 plot([f2,f2,2000],[-80 -Ap,-Ap], '--red')
+legend('Filtro projetado','Filtro quantizado');
 hold off;
 
 figure(10)
 subplot(121)
-zplane(b, 1);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+zplane(b, 1);title('Diagrama de pólos e zeros projetado');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
 subplot(122)
-zplane(N, 1);title('Diagrama de pólos e zeros');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
+zplane(N, 1);title('Diagrama de pólos e zeros quantizado');xlabel('Parte real');ylabel('Parte imaginária');axis([-2 2 -3 3]);
 hold off;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
